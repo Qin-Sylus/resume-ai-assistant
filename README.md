@@ -136,19 +136,28 @@ mvn clean spring-boot:run
 
 启动成功标志：`Started SpringAiApplication`，服务地址 `http://localhost:9090`。
 
-修改 `src/main/resources/application.yml`：
+**配置准备**：仓库中没有 `application.yml`（内含数据库密码与 API Key，已加入 `.gitignore`）。首次运行请先复制模板，再改成本机参数：
+
+```powershell
+cd src\main\resources
+copy application-example.yml application.yml
+```
+
+需要修改的字段：
 
 ```yaml
 spring:
   ai:
     openai:
-      base-url: https://api.mixrai.com   # 换成你可用的 OpenAI 兼容服务
-      api-key: sk-xxxx                   # 必须换成有效 Key，否则 AI 功能 401
+      base-url: https://api.openai.com/   # 换成你可用的 OpenAI 兼容服务地址
+      api-key: sk-xxxx                    # 换成有效 Key，否则 AI 功能报 401
   datasource:
     url: jdbc:mysql://localhost:3306/springai?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
     username: root
-    password: 你的密码
+    password: 你的MySQL密码
 ```
+
+> 也可以改用环境变量注入：`api-key: ${AI_API_KEY}`、`password: ${DB_PASSWORD}`，避免明文落盘。
 
 ### 2. 前端
 
@@ -174,21 +183,28 @@ npm run dev
 
 ## 已知问题
 
+已修复（本次整理中处理）：
+
+| 问题 | 位置 | 处理方式 |
+| --- | --- | --- |
+| 登录表单缺 `rules` 校验定义，且登录失败无任何提示 | `src/views/Login.vue` | 补齐邮箱 / 密码校验规则，改为校验通过才请求；后端返回 400 时提示“邮箱或密码不正确” |
+| WebSocket 端口写成 8080 | `src/views/Resume.vue` | 已改为 `ws://localhost:9090/ws/chat`，与后端一致 |
+| 数据源驱动为 MySQL 5 旧类名 `com.mysql.jdbc.Driver` | `application-example.yml` | 已删除该行，交由 Spring Boot 按 url 自动推断 Connector/J 8 驱动 |
+| 时区设为 `UTC` | `application-example.yml` | 已改为 `Asia/Shanghai`，避免时间字段差 8 小时 |
+
+仍存在的限制：
+
 | 问题 | 位置 | 说明 |
 | --- | --- | --- |
-| WebSocket 端口写成 8080 | `src/views/Resume.vue:352` | 后端实际在 9090，简历页实时对话连不上；`wsChatView.vue` 里是对的 |
-| 驱动类名为 MySQL 5 旧值 | `application.yml` 的 `driver-class-name: com.mysql.jdbc.Driver` | Connector/J 8 下建议删除该行，由 Spring Boot 按 url 自动推断 |
-| 时区为 UTC | `application.yml` 的 `serverTimezone=UTC` | 时间字段会差 8 小时，建议改 `Asia/Shanghai` |
-| 邮件配置为空 | `spring.mail.host` | 邮件发送功能一调用即异常 |
-| AI Key 为第三方中转站 | `application.yml` 的 `api-key` | 可能失效或额度耗尽，AI 功能会 401 |
-| 密码明文存储 | `user.password` + `UserServiceImpl.login` | 学习项目未加密，生产需改为 BCrypt |
-| 登录校验缺失 | `Login.vue` 原缺 `rules` 定义 | 已补齐邮箱 / 密码校验规则，并补充登录失败提示 |
+| 密码明文存储 | `user.password` + `UserServiceImpl.login` | 学习项目未加密，生产环境需改为 BCrypt |
+| 邮件配置为空 | `application.yml` 的 `spring.mail.*` | 未配置 SMTP 时邮件功能一调用即异常 |
+| AI 依赖外部 Key | `application-example.yml` 的 `api-key` | Key 失效或额度耗尽时，AI 生成与推荐理由会返回 401 |
 
 ---
 
 ## 安全提醒
 
-`application.yml` 中含**数据库密码**与**第三方 API Key**，公开仓库前请务必替换为占位符，或改为环境变量注入（`${DB_PASSWORD}`、`${AI_API_KEY}`）。
+仓库中**不包含** `application.yml`，该文件已加入 `.gitignore`；仓库内提供 `application-example.yml` 作为模板。请勿将含真实数据库密码与 API Key 的配置文件提交到公开仓库。
 
 ---
 
