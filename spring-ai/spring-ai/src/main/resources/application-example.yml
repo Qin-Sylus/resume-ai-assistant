@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: springAi
+  ai:
+    openai:
+      # OpenAI 兼容协议的接口地址，可换成官方或自建网关
+      base-url: https://api.openai.com/
+      # 换成你自己有效的 Key；建议用环境变量注入：${AI_API_KEY}
+      api-key: sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  datasource:
+    # 库名固定为 springai，时区用 Asia/Shanghai，避免时间字段差 8 小时
+    url: jdbc:mysql://localhost:3306/springai?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+    username: root
+    # 换成你本机 MySQL 的密码；建议用环境变量注入：${DB_PASSWORD}
+    password: your_mysql_password
+    # 无需指定 driver-class-name，Spring Boot 会按 url 自动推断 com.mysql.cj.jdbc.Driver
+  mail:
+    # 不使用邮件功能可留空
+    host: smtp.qq.com
+    username: your_mail@qq.com
+    password: your_mail_auth_code
+    default-encoding: UTF-8
+    protocol: smtp
+    port: 587
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
+mybatis-plus:
+  type-aliases-package: com.example.springai.model
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+server:
+  port: 9090
+logging:
+  level:
+    com.baomidou.mybatisplus: debug
