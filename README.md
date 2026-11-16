@@ -2,6 +2,8 @@
 
 一个面向求职者的智能简历平台：填写个人信息后由大模型生成 / 润色简历，支持导出 Word 与 PDF；同时基于技能标签与岗位库做匹配度计算，给出 Top 5 职位推荐并由大模型生成推荐理由。系统还提供岗位池管理、AI 实时对话（WebSocket 流式输出）与历史记录查询。
 
+> **二次开发 / AI 协作请先读 [`docs/AI-CONTEXT.md`](docs/AI-CONTEXT.md)**：模块清单、接口约定、调用示例、改动位置与检查方法，每一条都可对照真实代码核验。
+
 ## 在线预览
 
 - 前端界面预览：<https://qin-sylus.github.io/resume-ai-assistant/>
@@ -60,13 +62,15 @@
 基于SpringBoot+Vue+AI大模型的简历生成+职业推荐系统/
 ├── springai.sql                  # 建表脚本（5 张表，无数据）
 ├── 示例数据.sql                   # 演示数据（7 分类 / 15 职位 / 3 账号 / 3 简历 / 8 条问答）
+├── docs/AI-CONTEXT.md            # AI 可读项目说明：模块 / 接口 / 改动位置 / 检查方法
+├── AGENTS.md                     # 指向 docs/AI-CONTEXT.md 的入口（AI 工具默认读取）
 ├── spring-ai/
 │   └── spring-ai/                # 后端工程
 │       ├── pom.xml
 │       ├── src/main/java/com/example/springai/
 │       │   ├── SpringAiApplication.java
 │       │   ├── config/           # WebConfig（CORS）、uuid 生成器
-│       │   ├── controller/       # User / Resume / Job / JobRecommend / Recommend / Chat / History
+│       │   ├── controller/       # User / Job / JobRecommend / Recommend / Chat / History（6 个）
 │       │   ├── service/ + impl/  # 业务层，含 JobRecommendServiceImpl 匹配算法
 │       │   ├── mapper/           # MyBatis-Plus Mapper（含 @Select 联表查询）
 │       │   ├── model/ dto/
